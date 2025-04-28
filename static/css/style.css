@@ -1,0 +1,13 @@
+#myCarousel {
+    max-height: 85vh; /* 让轮播图的高度缩小，避免完全占满屏幕 */
+    overflow: hidden;
+
+}
+
+.carousel-caption {
+    bottom: 50%; /* 让文字和按钮上移一点 */
+}
+.carousel-caption h1, 
+.carousel-caption p {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+}

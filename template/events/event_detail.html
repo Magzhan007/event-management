@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- 左侧：图片 -->
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded">
+                <img src="{{ event.img.url }}" class="card-img-top rounded" alt="{{ event.name }}">
+            </div>
+        </div>
+
+        <!-- 右侧：事件详情 -->
+        <div class="col-md-6">
+            <h2 class="fw-bold">{{ event.name }}</h2>
+            <p class="text-muted">{{ event.desc }}</p>
+
+            <!-- 🔥 价格显示 -->
+            <p class="fs-5"><strong>Base Price:</strong> <span class="text-danger fw-bold">${{ event.price }}</span></p>
+            <p class="fs-5"><strong>Total Price:</strong> <span class="text-success fw-bold">${{ total_price }}</span></p>
+
+
+            <!-- 可用服务项 -->
+            <h4 class="mt-4 fw-semibold">Available Services</h4>
+            <ul class="list-group list-group-flush" id="service-list">
+                {% for service in services %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fw-medium">{{ service.service.name }}</span>
+                        <br>
+                        <small class="text-muted">
+                            Unit Price: $<span class="unit-price">{{ service.service.unit_price }}</span> | 
+                            Default: <span class="default-quantity">{{ service.default_quantity }}</span> 
+                        </small>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">Max: {{ service.quantity_available }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No service items</li>
+                {% endfor %}
+            </ul>
+
+            <!-- 立即预订按钮 -->
+            <a href="{% url 'book_event' event.id %}" class="btn btn-success btn-lg w-100 mt-4">
+                <i class="bi bi-cart-plus"></i> Book Now
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

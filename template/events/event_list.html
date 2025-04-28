@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">EVENT LIST</h2>
+    <div class="row">
+        {% for data in event_data %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ data.event.img.url }}" class="card-img-top" alt="{{ data.event.name }}">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ data.event.name }}</h5>
+                    <p class="card-text">{{ data.event.desc }}</p>
+                    <p class="mt-auto"><strong>Price:</strong> ${{ data.total_price }}</p>
+                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#eventModal{{ data.event.id }}">
+                        view details
+                    </button>
+                </div>
+            </div>
+            {% include "components/event_detail_modal.html" with event=data.event services=data.services total_price=data.total_price %}
+
+        </div>
+        {% empty %}
+        <p class="text-center">目前没有活动。</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+<!-- 订单详情 Modal 组件 -->
+<div class="modal fade" id="orderModal{{ booking.id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ booking.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orderModalLabel{{ booking.id }}">📝 Order #{{ booking.id }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <div class="modal-body">
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>📅 Event:</strong> {{ booking.event.name }}</li>
+            <li class="list-group-item"><strong>👤 Client Name:</strong> {{ booking.cus_name }}</li>
+            <li class="list-group-item"><strong>📞 Contact:</strong> {{ booking.cus_ph }}</li>
+            <li class="list-group-item"><strong>📆 Booking Date:</strong> {{ booking.booking_date }}</li>
+            <li class="list-group-item"><strong>👤 Responsible Manager:</strong> {{ booking.assigned_manager }}</li>
+            <li class="list-group-item"><strong>⏳ Status:</strong> 
+              {% if booking.status == "pending" %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% elif booking.status == "quoted" %}
+                <span class="badge bg-info">Confirmed</span>
+              {% elif booking.status == "paid" %}
+                <span class="badge bg-success">Paid</span>
+              {% elif booking.status == "cancelled" %}
+                <span class="badge bg-danger">Cancelled</span>
+              {% endif %}
+            </li>
+            <li class="list-group-item"><strong>⏰ Submitted:</strong> {{ booking.booked_on }}</li>
+            <li class="list-group-item">
+              <strong class="badge bg-success">Total Price:</strong> ${{ total_price }}
+            </li>
+          </ul>
+  
+          <h5 class="mt-3">🛎 Booked Services</h5>
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Item</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Event</td>
+                <td class="text-center">1</td>
+                <td class="text-end">${{ booking.event.price }}</td>
+                <td class="text-end">${{ booking.event.price }}</td>
+              </tr>
+  
+              {% for bs in booked_services %}
+              <tr>
+                <td>{{ bs.service.name }}</td>
+                <td class="text-center">{{ bs.quantity }}</td>
+                <td class="text-end">${{ bs.service.unit_price }}</td>
+                <td class="text-end">${% widthratio bs.service.unit_price 1 bs.quantity %}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-muted text-center">No additional services selected</td>
+              </tr>
+              {% endfor %}
+  
+              <tr class="table-success">
+                <td colspan="3" class="fw-bold text-end">Total</td>
+                <td class="text-end fw-bold">${{ total_price }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {% if booking.status == "paid" and booking.payment %}
+            <h5 class="mt-3 text-success">💳 Payment Info</h5>
+            <ul class="list-group mb-3">
+                <li class="list-group-item"><strong>Method:</strong> {{ booking.payment.get_method_display }}</li>
+                <li class="list-group-item"><strong>Card:</strong> **** **** **** {{ booking.payment.card_last4 }}</li>
+                <li class="list-group-item"><strong>Paid On:</strong> {{ booking.payment.paid_on }}</li>
+                <li class="list-group-item"><strong>Amount:</strong> ${{ booking.payment.amount }}</li>
+            </ul>
+            {% endif %}
+        </div>
+  
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

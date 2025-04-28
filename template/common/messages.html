@@ -1,0 +1,72 @@
+{% if messages %}
+<ul id="django-messages" style="
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
+    position: fixed; 
+    top: 120px; 
+    right: 20px; 
+    z-index: 1000; 
+    width: 300px; 
+    font-family: Arial, sans-serif;">
+    {% for message in messages %}
+    <li class="message-item" style="
+        margin-bottom: 10px;
+        padding: 12px 15px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: opacity 0.5s ease-out;
+        {% if message.tags == 'success' %}
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        {% elif message.tags == 'error' %}
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        {% elif message.tags == 'warning' %}
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        {% elif message.tags == 'info' %}
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        {% elif message.tags == 'debug' %}
+            background-color: #e2e3e5;
+            border-left: 4px solid #6c757d;
+            color: #383d41;
+        {% else %}
+            background-color: #e2e3e5;
+            border-left: 4px solid #6c757d;
+            color: #383d41;
+        {% endif %}
+        ">
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有消息元素
+        const messageItems = document.querySelectorAll('.message-item');
+        
+        // 对每个消息设置定时器
+        messageItems.forEach(function(item) {
+            // 3秒后开始淡出
+            setTimeout(function() {
+                item.style.opacity = '0';
+                // 淡出动画完成后移除元素
+                setTimeout(function() {
+                    item.style.display = 'none';
+                    // 如果这是最后一个消息，移除整个消息容器
+                    if (item.parentNode.querySelectorAll('.message-item:not([style*="display: none"])').length === 0) {
+                        document.getElementById('django-messages').style.display = 'none';
+                    }
+                }, 500); // 等待淡出动画完成
+            }, 3000); // 3秒后启动淡出效果
+        });
+    });
+</script>
+{% endif %}

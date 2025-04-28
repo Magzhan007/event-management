@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'event_list' %}">Events</a></li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {% if request.resolver_match.url_name == 'book_event' %}
+          Book Event
+        {% elif request.resolver_match.url_name == 'book_successfully' %}
+          Booking Successful
+        {% endif %}
+      </li>
+    </ol>
+  </nav>
+<div class="container mt-4 w-75">
+    <h2 class="mb-4">Book {{ event.name }}</h2>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>请修正以下错误:</strong>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="id_cus_ph" class="form-label">Contact Number</label>
+            {{ form.cus_ph|add_class:"form-control"|attr:"pattern:^\\+?\\d{10,15}$"|attr:"title:For example +7(700)5550000 or 7005550000）" }}
+        </div>
+        <div class="mb-3">
+            <label for="id_booking_date" class="form-label">Booking Date</label>
+            {{ form.booking_date|add_class:"form-control" }}
+        </div>
+
+
+        <h4 class="mt-4">Select Service Items</h4>
+        <input type="hidden" id="base-price" value="{{ event.price }}">  <!-- 🟢 基础价格 -->
+
+        {% for service in services %}
+        <div class="mb-3">
+            <label class="form-label">{{ service.service.name }}（Default {{ service.default_quantity }}，Maximum {{ service.quantity_available }}）</label>
+            
+            <div class="input-group">
+                <!-- 减少按钮 -->
+                <button class="btn btn-outline-secondary decrement" type="button" data-target="service_{{ service.service.id }}">-</button>
+
+                <!-- 数量输入框 -->
+                <input type="number" name="service_{{ service.service.id }}" 
+                    id="service_{{ service.service.id }}" class="form-control service-quantity" 
+                    min="0" max="{{ service.quantity_available }}" 
+                    value="{{ service.default_quantity }}" 
+                    data-price="{{ service.service.unit_price }}">
+
+                <!-- 增加按钮 -->
+                <button class="btn btn-outline-secondary increment" type="button" data-target="service_{{ service.service.id }}">+</button>
+            </div>
+        </div>
+        {% empty %}
+        <p>There are no additional services for this event.</p>
+        {% endfor %}
+
+<!-- 🔥 实时显示总价 -->
+<h4 class="mt-4">💰 Total Price: <span id="total-price">${{ event.price }}</span></h4>
+        <button type="submit" class="btn btn-primary w-100 mb-4">Submit Booking</button>
+    </form>
+</div>
+{% endblock %}
+
+
+{% block script%}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function updateTotalPrice() {
+            let basePrice = parseFloat(document.getElementById("base-price").value);
+            let totalPrice = basePrice;
+    
+            document.querySelectorAll(".service-quantity").forEach(input => {
+                let quantity = parseInt(input.value) || 0;
+                let unitPrice = parseFloat(input.getAttribute("data-price"));
+                totalPrice += quantity * unitPrice;
+            });
+    
+            document.getElementById("total-price").textContent = `$${totalPrice.toFixed(2)}`;
+        }
+    
+        // 监听输入框变化
+        document.querySelectorAll(".service-quantity").forEach(input => {
+            input.addEventListener("input", updateTotalPrice);
+        });
+    
+        // 监听 + - 按钮
+        document.querySelectorAll(".increment").forEach(button => {
+            button.addEventListener("click", function () {
+                let targetId = this.getAttribute("data-target");
+                let input = document.getElementById(targetId);
+                let max = parseInt(input.max);
+                let value = parseInt(input.value) || 0;
+                if (value < max) {
+                    input.value = value + 1;
+                    updateTotalPrice();
+                }
+            });
+        });
+    
+        document.querySelectorAll(".decrement").forEach(button => {
+            button.addEventListener("click", function () {
+                let targetId = this.getAttribute("data-target");
+                let input = document.getElementById(targetId);
+                let value = parseInt(input.value) || 0;
+                if (value > 0) {
+                    input.value = value - 1;
+                    updateTotalPrice();
+                }
+            });
+        });
+    
+        // 初始化总价
+        updateTotalPrice();
+    });
+    </script>
+{% endblock%}
+

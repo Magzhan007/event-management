@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+{% include 'common/messages.html' %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'event_list' %}">Events</a></li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {% if request.resolver_match.url_name == 'book_event' %}
+          Book Event
+        {% elif request.resolver_match.url_name == 'booking_success' %}
+          Book Event
+  
+        {% endif %}
+      </li>
+    </ol>
+  </nav>
+<div class="container mt-5">
+    <div class="alert alert-success text-center">
+        <h2>🎉 Order Submitted Successfully!</h2>
+        <p>Your order has been submitted and is awaiting review by the manager.</p>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Order Details</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>📅 Event:</strong> {{ booking.event.name }}</li>
+                <li class="list-group-item"><strong>👤 Client Name:</strong> {{ booking.cus_name }}</li>
+                <li class="list-group-item"><strong>📞 Contact Number:</strong> {{ booking.cus_ph }}</li>
+                <li class="list-group-item"><strong>📆 Booking Date:</strong> {{ booking.booking_date }}</li>
+                <li class="list-group-item"><strong>⏳ Status:</strong> 
+                    {% if booking.status == "pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif booking.status == "quoted" %}
+                        <span class="badge bg-info">Confirmed</span>
+                    {% elif booking.status == "paid" %}
+                        <span class="badge bg-success">Paid</span>
+                    {% elif booking.status == "cancelled" %}
+                        <span class="badge bg-danger">Cancelled</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item"><strong>⏰ Order Submission Time:</strong> {{ booking.booked_on }}</li>
+                <li class="list-group-item"><strong><span class="badge bg-success">Total Price:</span></strong> ${{ total_price }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 🛎 预订的服务项 -->
+    <h4 class="mt-4">🛎 Booked Services</h4>
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Item</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 🔸 基础费用 -->
+            <tr>
+                <td>Event</td>
+                <td class="text-center">1</td>
+                <td class="text-end">${{ booking.event.price }}</td>
+                <td class="text-end">${{ booking.event.price }}</td>
+            </tr>
+
+            <!-- 🔹 额外服务项 -->
+            {% for bs in booked_services %}
+            <tr>
+                <td>{{ bs.service.name }}</td>
+                <td class="text-center">{{ bs.quantity }}</td>
+                <td class="text-end">${{ bs.service.unit_price }}</td>
+                <td class="text-end">${% widthratio bs.service.unit_price 1 bs.quantity %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-muted text-center">No additional services selected</td>
+            </tr>
+            {% endfor %}
+
+            <!-- 🔥 预计总价 -->
+            <tr class="table-success">
+                <td colspan="3" class="fw-bold text-end">Total Price</td>
+                <td class="text-end fw-bold fs-5">${{ total_price }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 🔹 操作按钮 -->
+    <div class="text-center mb-4">
+        <a href="{% url 'event_list' %}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Events</a>
+        <!-- <a href="{% url 'event_detail' booking.event.id %}" class="btn btn-outline-secondary">View Event Details</a> -->
+        <a href="{% url 'my_orders' %}" class="btn btn-success"><i class="fas fa-list"></i> My Order</a>
+    </div>
+</div>
+
+{% endblock %}

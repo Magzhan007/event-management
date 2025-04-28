@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">💳 Pay for Order #{{ booking.id }}</h2>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <strong>Order Summary</strong>
+    </div>
+    <div class="card-body">
+      <p><strong>📅 Event:</strong> {{ booking.event.name }}</p>
+      <p><strong>🛎 Services:</strong>
+        {% for bs in booked_services %}
+          {{ bs.service.name }} (x{{ bs.quantity }}){% if not forloop.last %}, {% endif %}
+        {% empty %}
+          None
+        {% endfor %}
+      </p>
+      <p><strong>💰 Total:</strong> ${{ total_price }}</p>
+    </div>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="card mb-4">
+      <div class="card-header"><strong>Enter Card Info</strong></div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Card Number</label>
+          <input type="text" name="card_number" class="form-control" placeholder="1234 5678 9012 3456" required maxlength="19">
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Expiry</label>
+            <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required maxlength="5">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">CVV</label>
+            <input type="text" name="cvv" class="form-control" placeholder="123" required maxlength="4">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-success btn-lg">💸 Pay ${{ total_price }}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+id,img,name,desc,price
+1,pic/Highgrove-Jumeriah-Carlton-Tower-768x512.webp,Tea Party Brunch,A charming outdoor tea party with elegant table se,100
+2,pic/images_2.jpg,Romantic Wedding,A beautiful wedding ceremony setting with a lovely,100
+3,pic/download.jpg,Birthday Bash Extravaganza,A vibrant and colorful birthday celebration with a,100
+4,pic/images.jpg,Vintage Car Wedding,A luxurious wedding event featuring a classic car,100
+5,pic/images_1.jpg,Elegant Fine Dining,A sophisticated dining event with beautifully set,100
+6,pic/photo-1469371670807-013ccf25f16a.jpg,Garden Wedding Ceremony,A picturesque outdoor wedding setup with floral de,100
+7,pic/photo-1511578314322-379afb476865.jpg,Grand Conference Gala,A professional event space designed for conference,100
+8,pic/pexels-asadphoto-169193.jpg,Beachfront Wedding Bliss,A stunning beachside wedding venue with floral arr,100

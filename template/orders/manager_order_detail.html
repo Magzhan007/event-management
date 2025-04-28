@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Order Details</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Event: {{ booking.event.name }}</h5>
+            <p class="card-text"><strong>Client Name:</strong> {{ booking.cus_name }}</p>
+            <p class="card-text"><strong>Contact Number:</strong> {{ booking.cus_ph }}</p>
+            <p class="card-text"><strong>Booking Date:</strong> {{ booking.booking_date }}</p>
+            <p class="card-text"><strong>Status:</strong> 
+                <span class="badge 
+                    {% if booking.status == 'Pending' %}bg-warning text-dark
+                    {% elif booking.status == 'Quoted' %}bg-info
+                    {% elif booking.status == 'Confirmed' %}bg-success
+                    {% elif booking.status == 'Cancelled' %}bg-danger
+                    {% endif %}
+                ">
+                    {{ booking.status }}
+                </span>
+            </p>
+
+            <h4 class="mt-3">预订的服务项</h4>
+            <ul class="list-group">
+                {% for bs in booked_services %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ bs.service.name }} 
+                    <span class="badge bg-secondary">数量: {{ bs.quantity }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item">❌ 未选择额外服务项</li>
+                {% endfor %}
+            </ul>
+
+            {% if not booking.assigned_manager %}
+                        {% if can_assign_more %}
+                            <form action="{% url 'assign_order' booking.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary mt-4">⚡ 抢单</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>订单已满</button>
+                        {% endif %}
+            {% elif booking.assigned_manager == request.user %}
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <label for="quote_price" class="form-label">💰 输入报价:</label>
+                <input type="number" name="quote_price" id="quote_price" class="form-control" required>
+                <button type="submit" class="btn btn-primary mt-2">✅ 确认报价</button>
+            </form>
+            {% else %}
+            <p class="text-muted mt-3">此订单已被 {{ booking.assigned_manager }} 接单。</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <a href="{% url 'manager_orders' %}" class="btn btn-outline-secondary mt-3">返回</a>
+</div>
+{% endblock %}

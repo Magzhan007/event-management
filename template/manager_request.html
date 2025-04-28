@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %} Manager Request {% endblock %}
+
+{% block content %}
+{% include 'common/messages.html' %}
+
+<div class="container mt-5 w-50">
+    {% if not user.is_superuser %}
+        <h3 class="mb-4">Apply to become manager</h3>
+
+        <div class="card shadow-sm p-4">
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="mail" class="form-label">Reason for application</label>
+                    <textarea name="mail" id="mail" class="form-control" rows="5" placeholder="Please fill in your reason for application..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="proof" class="form-label">Upload supporting documents</label>
+                    <input type="file" name="proof" id="proof" class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">Submit Application</button>
+            </form>
+        </div>
+
+    {% else %}
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Manager Application List</h3>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Applicant</th>
+                        <th scope="col">Application Reason</th>
+                        <th scope="col">Documents</th>
+                        <th scope="col">Applied Time</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for single_request in all_requests %}
+                        <tr>
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ single_request.sender }}</td>
+                                <input type="hidden" name="sender" value="{{ single_request.sender }}">
+                                <td>{{ single_request.mail }}</td>
+                                <td>
+                                    {% if single_request.proof %}
+                                        <a href="{{ single_request.proof.url }}" target="_blank" class="btn btn-sm btn-outline-info">查看文件</a>
+                                    {% else %}
+                                    Nothing
+                                    {% endif %}
+                                </td>
+                                <td>{{ single_request.time_sent|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </td>
+                            </form>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No application record yet</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

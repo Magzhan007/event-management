@@ -1,0 +1,73 @@
+<!-- 🔹 事件详情 Modal -->
+<div class="modal fade" id="eventModal{{ event.id }}" tabindex="-1" aria-labelledby="eventModalLabel{{ event.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalLabel{{ event.id }}">{{ event.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- 左侧图片 (缩小) -->
+                    <div class="col-4">
+                        <img src="{{ event.img.url }}" class="img-fluid rounded shadow-sm" alt="{{ event.name }}" style="max-height: 150px; object-fit: cover;">
+                    </div>
+
+                    <!-- 右侧活动信息 -->
+                    <div class="col-8">
+                        <p class="text-muted">{{ event.desc }}</p>
+                    </div>
+                </div>
+
+                <!-- 🔹 价格明细表 -->
+                <h4 class="mt-4">Price Details</h4>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 🔸 基础费用 -->
+                        <tr>
+                            <td>Event</td>
+                            <td class="text-center">1</td>
+                            <td class="text-end">${{ event.price }}</td>
+                            <td class="text-end">${{ event.price }}</td>
+                        </tr>
+
+                        <!-- 🔹 可用服务项 -->
+                        {% for service in services %}
+                        <tr>
+                            <td>{{ service.service.name }}</td>
+                            <td class="text-center">{{ service.default_quantity }}</td>
+                            <td class="text-end">${{ service.service.unit_price }}</td>
+                            <td class="text-end">${{ service.total_cost }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-muted text-center">No additional services selected</td>
+                        </tr>
+                        {% endfor %}
+
+                        <!-- 🔥 预计总价 -->
+                        <tr class="table-success">
+                            <td colspan="3" class="fw-bold text-end">Total Price</td>
+                            <td class="text-end fw-bold fs-5">${{ total_price }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'book_event' event.id %}" class="btn btn-success">
+                    <i class="bi bi-cart-plus"></i> Book Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
