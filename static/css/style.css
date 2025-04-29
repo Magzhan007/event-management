@@ -11,3 +11,23 @@
 .carousel-caption p {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
 }
+.carousel-item {
+    height: 100vh;
+    position: relative;
+}
+
+.carousel-item img {
+    height: 100vh;
+    object-fit: cover;
+    width: 100%;
+}
+
+.custom-caption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.3); /* 可选：让字看得更清楚 */
+}

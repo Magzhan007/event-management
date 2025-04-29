@@ -1,65 +1,59 @@
 {% extends 'base.html' %}
 {% load static %}
-{%block title%}
+
+{% block title %}
 Home
 {% endblock %}
 
-        {%block content%}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-        {% include 'common/messages.html' %}
-       
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
-
-        <!-- 轮播图 -->
-    <div id="myCarousel" class="carousel slide p-0" data-bs-ride="carousel">
-  <!-- 指示器 -->
+<!-- Carousel -->
+<div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+  <!-- Indicators -->
   <div class="carousel-indicators">
-      <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-      <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-      <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active"></button>
+    <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1"></button>
+    <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2"></button>
   </div>
 
-  <!-- 轮播项 -->
+  <!-- Slides -->
   <div class="carousel-inner">
-      <div class="carousel-item active">
-          <img src="https://papilioevents.com/wp-content/uploads/2019/11/fondo-2.jpg" class="d-block w-100">
-          <div class="carousel-caption d-md-block">
-              <h1 class="fw-bold">Welcome To Event Planning World</h1>
-              <p class="lead">We make your events memorable and seamless. Book with us today!</p>
-              <a href="{% url 'event_list' %}" class="btn btn-lg btn-primary">Book Now</a>
-          </div>
+    <div class="carousel-item active">
+      <img src="https://papilioevents.com/wp-content/uploads/2019/11/fondo-2.jpg" class="d-block w-100" alt="Slide 1">
+      <div class="carousel-caption d-flex flex-column justify-content-center align-items-center text-center custom-caption">
+        <h1 class="fw-bold">Welcome To Event Planning World</h1>
+        <p class="lead">We make your events memorable and seamless. Book with us today!</p>
+        <a href="{% url 'event_list' %}" class="btn btn-primary btn-lg">Book Now</a>
       </div>
-
-      <div class="carousel-item">
-          <img src="https://papilioevents.com/wp-content/uploads/2019/11/Wed.jpg" class="d-block w-100">
-          <div class="carousel-caption d-md-block">
-              <h1 class="fw-bold">Make Your Event Special</h1>
-              <p class="lead">We provide top-notch event planning services.</p>
-              <a href="{% url 'event_list' %}" class="btn btn-lg btn-primary">Book Now</a>
-          </div>
+    </div>
+    <div class="carousel-item">
+      <img src="https://papilioevents.com/wp-content/uploads/2019/11/Wed.jpg" class="d-block w-100" alt="Slide 2">
+      <div class="carousel-caption d-flex flex-column justify-content-center align-items-center text-center custom-caption">
+        <h1 class="fw-bold">Make Your Event Special</h1>
+        <p class="lead">We provide top-notch event planning services.</p>
+        <a href="{% url 'event_list' %}" class="btn btn-primary btn-lg">Book Now</a>
       </div>
-
-      <div class="carousel-item">
-          <img src="https://papilioevents.com/wp-content/uploads/2019/11/g%C3%B6ztepe-d%C3%BC%C4%9F%C3%BCn-salonlar%C4%B1-1.jpg" class="d-block w-100">
-          <div class="carousel-caption d-md-block">
-              <h1 class="fw-bold">Luxury and Elegance</h1>
-              <p class="lead">Experience world-class event venues with us.</p>
-              <a href="{% url 'event_list' %}" class="btn btn-lg btn-primary">Book Now</a>
-          </div>
+    </div>
+    <div class="carousel-item">
+      <img src="https://papilioevents.com/wp-content/uploads/2019/11/g%C3%B6ztepe-d%C3%BC%C4%9F%C3%BCn-salonlar%C4%B1-1.jpg" class="d-block w-100" alt="Slide 3">
+      <div class="carousel-caption d-flex flex-column justify-content-center align-items-center text-center custom-caption">
+        <h1 class="fw-bold">Luxury and Elegance</h1>
+        <p class="lead">Experience world-class event venues with us.</p>
+        <a href="{% url 'event_list' %}" class="btn btn-primary btn-lg">Book Now</a>
       </div>
+    </div>
   </div>
 
-  <!-- 左右控制按钮 -->
+  <!-- Controls -->
   <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
   </button>
   <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
   </button>
 </div>
-              
 
 {% endblock %}
