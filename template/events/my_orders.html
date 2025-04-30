@@ -1,127 +1,138 @@
 {% extends "base.html" %}
 {% block content %}
 {% include 'common/messages.html' %}
+
 <div class="container mt-5">
     <h2>📝 My Orders</h2>
 
-    {% if bookings %}
-    <div class="row mb-3">
+    <!-- 过滤器 -->
+    <form method="get" class="row mb-3">
         <div class="col-md-4">
             <label for="statusFilter" class="form-label">Filter by Status:</label>
-            <select id="statusFilter" class="form-select" onchange="filterTable()">
-                <option value="all">All</option>
-                <option value="pending">Pending</option>
-                <option value="quoted">Confirmed</option>
-                <option value="paid">Paid</option>
-                <option value="cancelled">Cancelled</option>
+            <select id="statusFilter" class="form-select" name="status" onchange="this.form.submit()">
+                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="quoted" {% if status_filter == 'quoted' %}selected{% endif %}>Confirmed</option>
+                <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
+                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
             </select>
         </div>
-    </div>
-    
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered">
-                <thead class="table-dark">
-                    <tr >
-                        <th >🎭 Events</th>
-                        <th onclick="sortTable(1)">📆 Booking Date</th>
-                        <th onclick="sortTable(2)">⏰ Booking Time</th>
-                        <th onclick="sortTable(3)">📌 Status</th>
-                        <th>⚙️ Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for booking in bookings %}
-                    <tr class="active-row" style="background-color: blue;">
-                        <td>{{ booking.event.name }}</td>
-                        <td>{{ booking.booking_date }}</td>
-                        <td>{{ booking.booked_on }}</td>
-                        <td>
-                            {% if booking.status == "pending" %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            {% elif booking.status == "quoted" %}
-                                <span class="badge bg-info">Confirmed</span>
-                            {% elif booking.status == "paid" %}
-                                <span class="badge bg-success">Paid</span>
-                            {% elif booking.status == "cancelled" %}
-                                <span class="badge bg-danger">Cancelled</span>
-                            {% endif %}
-                        </td>
-                        <td >
-                            <!-- <a href="{% url 'booking_success' booking.id %}" class="btn btn-sm btn-primary">📜 Order Detail</a> -->
-                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#orderModal{{ booking.id }}" onclick="highlightRow(this)">
-                                📜Order Details
+    </form>
+
+    {% if page_obj.object_list %}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>🎭 Events</th>
+                    <th>📆 Booking Date</th>
+                    <th>⏰ Booking Time</th>
+                    <th>📌 Status</th>
+                    <th>⚙️ Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in page_obj.object_list %}
+                <tr>
+                    <td>{{ booking.event.name }}</td>
+                    <td>{{ booking.booking_date }}</td>
+                    <td>{{ booking.booked_on }}</td>
+                    <td>
+                        {% if booking.status == "pending" %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% elif booking.status == "quoted" %}
+                            <span class="badge bg-info">Confirmed</span>
+                        {% elif booking.status == "paid" %}
+                            <span class="badge bg-success">Paid</span>
+                        {% elif booking.status == "cancelled" %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#orderModal{{ booking.id }}">
+                            📜 Order Details
+                        </button>
+                        {% include 'components/user_order_detail_modal.html' with booking=booking booked_services=booking.bookingservice_set.all total_price=booking.price_quote %}
+                        {% if booking.status == "quoted" %}
+                            <a href="{% url 'pay_order' booking.id %}" class="btn btn-sm btn-success">💳 Pay Now</a>
+                        {% endif %}
+
+                        {% if booking.status == "pending" or booking.status == "quoted" %}
+                            <!-- Cancel Order Modal Trigger -->
+                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal{{ booking.id }}">
+                                ❌ Cancel Order
                             </button>
-                            
-                            
-                              {% include 'components/user_order_detail_modal.html' with booking=booking booked_services=booking.bookingservice_set.all total_price=booking.price_quote %}
 
-                            {% if booking.status == "quoted" %}
-                                <a href="{% url 'pay_order' booking.id %}" class="btn btn-sm btn-success">💳 Pay Now</a>
-                            {% endif %}
+                            <!-- Cancel Confirmation Modal -->
+                            <div class="modal fade" id="cancelModal{{ booking.id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ booking.id }}" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                  <div class="modal-header bg-black text-white">
+                                    <h5 class="modal-title" id="cancelModalLabel{{ booking.id }}">Cancel Confirmation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    Are you sure you want to cancel the booking for <strong>{{ booking.event.name }}</strong> on <strong>{{ booking.booking_date }}</strong>?
+                                  </div>
+                                  <div class="modal-footer">
+                                    <form action="{% url 'cancel_booking' booking.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Yes, Cancel</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep It</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                            <!-- 取消订单按钮 -->
-                            {% if booking.status == "pending" or booking.status == "quoted" %}
-                                <form action="{% url 'cancel_booking' booking.id %}" method="POST" style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel the order?');">❌ Cancel Order</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
+    <!-- 分页控制 -->
+    <div class="pagination-container text-center mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}">←</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link text-muted">←</span>
+                </li>
+            {% endif %}
 
-                    
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}&status={{ status_filter }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}">→</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link text-muted">→</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
     {% else %}
         <div class="alert alert-secondary text-center mt-4">
             <p>😢 You have not booked any events yet.</p>
         </div>
     {% endif %}
-
-    <div class="text-center mt-4">
-        <a href="{% url 'event_list' %}" class="btn btn-primary mb-4">🎟 Back to Events</a>
-    </div>
 </div>
-<script>
-    function filterTable() {
-        var select = document.getElementById("statusFilter");
-        var filter = select.value;
-        var table = document.querySelector(".table tbody");
-        var rows = table.getElementsByTagName("tr");
-    
-        for (var i = 0; i < rows.length; i++) {
-            var statusCell = rows[i].getElementsByTagName("td")[3]; // 第4列是状态
-            if (statusCell) {
-                var statusText = statusCell.innerText.trim().toLowerCase();
-                if (filter === "all" || statusText.includes(filter)) {
-                    rows[i].style.display = "";
-                } else {
-                    rows[i].style.display = "none";
-                }
-            }
-        }
-    }
-
-    </script>
-<script>
-    function highlightRow(button) {
-        // 1. 找到当前按钮所在的<tr>
-        var currentRow = button.closest('tr');
-    
-        // 2. 移除其他行的 table-active 类
-        document.querySelectorAll('tbody tr').forEach(function(row) {
-            row.classList.remove('table-active');
-        });
-    
-        // 3. 当前行加上 table-active
-        currentRow.classList.add('table-active');
-    }
-    </script>
-    
-    
-    
-        
-
 {% endblock %}

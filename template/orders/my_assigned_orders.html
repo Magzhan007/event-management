@@ -15,7 +15,7 @@
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="myOrdersTableBody">
                 {% for order in assigned_orders %}
                 <tr>
                     <td>{{ order.event.name }}</td>
@@ -34,12 +34,10 @@
                         <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#orderModal{{ order.id }}">👁️View Detail</button>
 
                         {% if order.status == "assigned" %}
-                            <!-- 确认报价按钮，触发 Modal -->
                             <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#quoteModal{{ order.id }}">📃Confirm Price</button>
                         {% endif %}
                         
                         {% if order.status == "assigned" %}
-                        <!-- 释放订单 -->
                         <form action="{% url 'release_order' order.id %}" method="POST" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-danger">🔄Cancel Order</button>
@@ -50,7 +48,6 @@
 
                 {% include "components/order_detail_modal.html" %}
                 
-                <!-- 🔹 确认报价 Modal -->
                 <div class="modal fade" id="quoteModal{{ order.id }}" tabindex="-1" aria-labelledby="quoteModalLabel{{ order.id }}" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -72,10 +69,68 @@
                         </div>
                     </div>
                 </div>
-
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- 分页区域 -->
+        <nav>
+            <ul class="pagination justify-content-center" id="myOrdersPagination"></ul>
+        </nav>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const rowsPerPage = 5;
+            const table = document.getElementById("myOrdersTableBody");
+            const rows = table.querySelectorAll("tr");
+            const pagination = document.getElementById("myOrdersPagination");
+            const pageCount = Math.ceil(rows.length / rowsPerPage);
+            let currentPage = 1;
+
+            function showPage(page) {
+                currentPage = page;
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = index >= start && index < end ? "" : "none";
+                });
+
+                renderPagination();
+            }
+
+            function renderPagination() {
+                pagination.innerHTML = "";
+
+                // 上一页按钮
+                pagination.innerHTML += `
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <button class="page-link" onclick="changePage(${currentPage - 1})">‹</button>
+                    </li>
+                `;
+
+                // 页面编号
+                for (let i = 1; i <= pageCount; i++) {
+                    pagination.innerHTML += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <button class="page-link" onclick="changePage(${i})">${i}</button>
+                        </li>
+                    `;
+                }
+
+                // 下一页按钮
+                pagination.innerHTML += `
+                    <li class="page-item ${currentPage === pageCount ? 'disabled' : ''}">
+                        <button class="page-link" onclick="changePage(${currentPage + 1})">›</button>
+                    </li>
+                `;
+            }
+
+            window.changePage = showPage;
+            showPage(1);
+        });
+        </script>
+
     {% else %}
         <div class="alert alert-warning">You are not currently managing any orders.</div>
     {% endif %}

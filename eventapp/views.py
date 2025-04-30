@@ -6,6 +6,7 @@ from .models import Event, Booking, ServiceItem, EventService, BookingService, P
 from .forms import BookingForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 # Create your views here.
 def index(request):
@@ -288,4 +289,27 @@ def pay_order(request, booking_id):
         "booking": booking,
         "booked_services": booked_services,
         "total_price": total_price
+    })
+
+@login_required
+def my_orders(request):
+    # 获取用户的所有订单
+    bookings = Booking.objects.filter(cus_name=request.user).order_by('-booked_on')
+
+    # 获取用户请求的状态过滤参数，默认为 'all'（所有订单）
+    status_filter = request.GET.get('status', 'all')
+    
+    # 根据过滤条件修改查询集
+    if status_filter != 'all':
+        bookings = bookings.filter(status=status_filter)
+
+    # 分页处理
+    paginator = Paginator(bookings, 5)  # 每页显示 5 条订单
+    page_number = request.GET.get('page')  # 获取当前页码
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'events/my_orders.html', {
+        'bookings': bookings,
+        'page_obj': page_obj,
+        'status_filter': status_filter
     })
