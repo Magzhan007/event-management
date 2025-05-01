@@ -43,7 +43,7 @@
         </div>
         <div class="mb-3">
             <label for="id_booking_date" class="form-label">Booking Date</label>
-            {{ form.booking_date|add_class:"form-control" }}
+            {{ form.booking_date|add_class:"form-control"|attr:"min:"|attr:"id:booking_date_input" }}
         </div>
 
 
@@ -84,6 +84,39 @@
 {% block script%}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // 设置日期输入框的最小日期为今天
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // 月份是从0开始的
+        let dd = today.getDate();
+        
+        // 格式化日期为YYYY-MM-DD
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+        
+        const formattedToday = yyyy + '-' + mm + '-' + dd;
+        
+        // 设置日期输入框的最小值为今天
+        const dateInput = document.getElementById('booking_date_input');
+        if (dateInput) {
+            dateInput.setAttribute('min', formattedToday);
+            
+            // 添加验证，确保用户不能手动输入过去的日期
+            dateInput.addEventListener('input', function() {
+                const selectedDate = new Date(this.value);
+                const currentDate = new Date();
+                
+                // 重置时间部分，只比较日期
+                currentDate.setHours(0, 0, 0, 0);
+                selectedDate.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < currentDate) {
+                    alert('无法选择过去的日期');
+                    this.value = formattedToday;
+                }
+            });
+        }
+
         function updateTotalPrice() {
             let basePrice = parseFloat(document.getElementById("base-price").value);
             let totalPrice = basePrice;
@@ -133,4 +166,3 @@
     });
     </script>
 {% endblock%}
-
