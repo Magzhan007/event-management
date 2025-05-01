@@ -108,6 +108,43 @@
             background-color: white; /* 纯白色下划线 */
         }
         
+        /* Alert messages styling - positioned in top-right corner */
+        .toast-container {
+            position: fixed;
+            top: 70px; /* Position below navbar */
+            right: 20px;
+            z-index: 1050;
+            max-width: 350px;
+        }
+        
+        .toast {
+            margin-bottom: 10px;
+            opacity: 1 !important; /* Make sure it's visible */
+        }
+        
+        .toast-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .toast-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .toast-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-color: #ffeeba;
+        }
+        
+        .toast-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
     </style>
 </head>
 <!-- 动态为首页加 class -->
@@ -180,6 +217,40 @@
         </div>
     </nav>
 
+    <!-- Toast Messages in top-right corner -->
+    {% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+            <div class="toast toast-{{ message.tags }} show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    {% if message.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="bi bi-exclamation-circle-fill me-2 text-danger"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>
+                    {% elif message.tags == 'info' %}
+                        <i class="bi bi-info-circle-fill me-2 text-info"></i>
+                    {% else %}
+                        <i class="bi bi-bell-fill me-2"></i>
+                    {% endif %}
+                    <strong class="me-auto">
+                        {% if message.tags == 'success' %}Success{% endif %}
+                        {% if message.tags == 'error' or message.tags == 'danger' %}Error{% endif %}
+                        {% if message.tags == 'warning' %}Warning{% endif %}
+                        {% if message.tags == 'info' %}Information{% endif %}
+                        {% if not message.tags %}Notification{% endif %}
+                    </strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    {{ message }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- 页面内容 -->
     <div id="page-content" class="container-fluid mt-5">
         {% block content %}
@@ -193,6 +264,24 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Auto-dismiss toasts after 3 seconds -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all toast elements
+            const toastElList = document.querySelectorAll('.toast');
+            
+            // Initialize each as a Bootstrap toast
+            toastElList.forEach(function(toastEl) {
+                // Set timeout to auto-dismiss after 3 seconds (3000ms)
+                setTimeout(function() {
+                    // Create and hide using Bootstrap's Toast API
+                    const toast = bootstrap.Toast.getInstance(toastEl) || new bootstrap.Toast(toastEl);
+                    toast.hide();
+                }, 3000);
+            });
+        });
+    </script>
 
     {% block script %}
     {% endblock %}
